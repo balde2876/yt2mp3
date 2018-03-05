@@ -203,8 +203,9 @@ function downloadAudio(url){
             //console.log(jsonIn2)
             var duration = 20;
             var durationString = jsonIn2["items"][0]["contentDetails"]["duration"].split("PT")[1];
+            //console.log(jsonIn["items"][0]["snippet"]["channelTitle"])
             duration = parseInt(convertYTAPITimeToSeconds(durationString));
-            videoMetadata = {"title":title,"duration":duration};
+            videoMetadata = {"title":title,"duration":duration,"creator":jsonIn["items"][0]["snippet"]["channelTitle"]};
             downloadAudioCore(url);
             //logger("gotData")
         }).catch(error => {
@@ -233,6 +234,9 @@ function updateProgress(){
 function downloadAudioCore(url){
     inputRequestor = null;
     //logger("Downloading from "+url)
+    if (!fs.existsSync("dl")){
+        fs.mkdirSync("dl");
+    }
     logger("Downloading "+videoMetadata["title"] + " [" + secondsToHumanTime(videoMetadata["duration"]) + "]")
     videoDuration = videoMetadata["duration"];
     var vId = url.split('v=')[1];
@@ -272,6 +276,7 @@ function writeId3Tags(){
         outputMetadata["artist"] = s1[0].trim();
     } else {
         outputMetadata["title"] = s1[0].trim();
+        outputMetadata["artist"] = videoMetadata["creator"].trim();
     }
 
     logger("Song artist [default="+outputMetadata["artist"]+"]:",4,false)
